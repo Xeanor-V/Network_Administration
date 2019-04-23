@@ -38,6 +38,37 @@ def ospf_configure(networks, routerID):
 	run_command(config)
 	return config
 
+#EIGRP configuration :
+##networks are subnet IDs networks = ['192.168.10','10.1.1.0']
+def eigrp_configure(networks):
+	config = "router eigrp\n"
+	for i in networks:
+		config += "network "+ i +"\n" # network 192.168.1.0 .YOU can use wildcard but that changes the networks structure
+	config += "exit\n"
+	run_command(config)
+	return(config)	
+
+
+#HSRP configuration (Host Standby Routing Protocol)
+#virtual_gateway @ used by hosts as default gateway
+#interface_id on which you will configure the HSRP: 'gi0/0'
+#goup : vlan ID
+#priority 110 by default .if you want to privilege a router just set the priority on a value > 110
+#out_interface : 'se0/0/0'
+#substrct_val : a substracted value fromm the priority of the active router
+def hsrp_configure(virtual_gateway,interface_id,group , priority=110 , out_interface, substrct_val):
+		config = "interface " + interface_id + "\n"
+		config += "standby " + str(group) + " ip" + virtual_gateway + "\n"
+		config += "standby " + str(group) + " priority " + str(priority) + "\n"
+		#configure preemption when the active router is down :
+		config += "standby " + str(group) + " preempt " + "\n"
+		# if the out_interface is down :
+		config += "standby " + str(group) + " track " + out_interface + str(substrct_val) + "\n"
+		config += "exit\n"
+		run_command(config)
+		return(config)
+
+
 def snmp_configure(community):
 	s = "snmp-server community " + community
 	#run_command(s)
